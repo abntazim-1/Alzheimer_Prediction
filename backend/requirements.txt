@@ -1,0 +1,107 @@
+# =========================
+# Core Deep Learning
+# =========================
+torch>=2.2
+torchvision
+torchaudio
+
+# =========================
+# Graph Neural Networks
+# =========================
+torch-geometric
+torch-scatter
+torch-sparse
+torch-cluster
+torch-spline-conv
+
+# =========================
+# Quantum Machine Learning
+# =========================
+pennylane
+pennylane-qiskit
+qiskit
+torchquantum
+
+# =========================
+# Neuroimaging & MRI Processing
+# =========================
+nibabel
+nilearn
+dipy
+antspyx
+brainspace
+
+# =========================
+# Medical Imaging Framework
+# =========================
+monai
+torchio
+
+# =========================
+# Scientific Computing
+# =========================
+numpy
+scipy
+pandas
+scikit-learn
+statsmodels
+
+# =========================
+# Graph Utilities
+# =========================
+networkx
+graspologic
+
+# =========================
+# Visualization
+# =========================
+matplotlib
+seaborn
+
+# =========================
+# Explainability
+# =========================
+shap
+lime
+captum
+
+# =========================
+# Training Utilities
+# =========================
+tqdm
+tensorboard
+wandb
+hydra-core
+omegaconf
+optuna
+mlflow
+
+# =========================
+# Utility & Performance
+# =========================
+einops
+joblib
+
+# =========================
+# Web Framework
+# =========================
+flask
+flask-cors
+
+
+torch
+torchvision
+qiskit
+pennylane
+joblib
+flask
+numpy
+pillow
+scikit-image
+lime
+matplotlib
+pandas
+scikit-learn
+tensorflow # Some notebooks mention tensorflow/keras
+torch-geometric # mentions in trail.ipynb
+opencv-python

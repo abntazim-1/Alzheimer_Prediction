@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.next/
+venv/
+backend/venv/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+backend/__pycache__/
+backend/routes/__pycache__/
+backend/services/__pycache__/
+
+# Models and Data
+*.pth
+*.pt
+*.joblib
+*.db
+models/*.pth
+models/*.pt
+models/*.joblib
+models/*.csv
+
+# Build and Dist
+dist/
+build/
+out/
+
+# Environment and IDE
+.env*.local
+.vscode/
+.idea/
+.DS_Store
+
+# v0 sandbox internal files
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+.snowflake/
+.v0-trash/
+.vercel/
+next.user-config.*
