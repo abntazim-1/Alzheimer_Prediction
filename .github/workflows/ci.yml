@@ -40,7 +40,17 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt
+          # Stage 1: Install core torch dependencies first
+          pip install torch==2.2.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+          
+          # Stage 2: Install PyG dependencies using pre-built wheels
+          pip install torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-2.2.0+cpu.html
+          
+          # Stage 3: Install remaining requirements (skipping torch/pyg already installed)
+          # We use a trick to ignore lines that we already installed to save time/space
+          grep -vE "torch|torchvision|torchaudio|torch-geometric|torch-scatter|torch-sparse|torch-cluster|torch-spline-conv" backend/requirements.txt > ci-requirements.txt
+          pip install -r ci-requirements.txt
+          
           pip install pytest httpx pytest-asyncio
           
       - name: Run Tests
