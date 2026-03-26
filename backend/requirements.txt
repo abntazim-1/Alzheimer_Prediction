@@ -20,6 +20,7 @@ torch-spline-conv
 pennylane
 pennylane-qiskit
 qiskit
+qiskit-machine-learning
 torchquantum
 
 # =========================
@@ -83,18 +84,26 @@ einops
 joblib
 
 # =========================
-# Web Framework
+# Web Framework & API
 # =========================
-flask
-flask-cors
+fastapi
+uvicorn
+python-multipart
+sqlalchemy
+aiosqlite
+requests
 
 
 torch
 torchvision
 qiskit
+qiskit-machine-learning
 pennylane
 joblib
-flask
+fastapi
+uvicorn
+sqlalchemy
+aiosqlite
 numpy
 pillow
 scikit-image
@@ -105,3 +114,5 @@ scikit-learn
 tensorflow # Some notebooks mention tensorflow/keras
 torch-geometric # mentions in trail.ipynb
 opencv-python
+requests
+python-multipart
