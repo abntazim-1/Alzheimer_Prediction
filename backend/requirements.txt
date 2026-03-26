@@ -93,26 +93,3 @@ sqlalchemy
 aiosqlite
 requests
 
-
-torch
-torchvision
-qiskit
-qiskit-machine-learning
-pennylane
-joblib
-fastapi
-uvicorn
-sqlalchemy
-aiosqlite
-numpy
-pillow
-scikit-image
-lime
-matplotlib
-pandas
-scikit-learn
-tensorflow # Some notebooks mention tensorflow/keras
-torch-geometric # mentions in trail.ipynb
-opencv-python
-requests
-python-multipart
