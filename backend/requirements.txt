@@ -92,4 +92,7 @@ python-multipart
 sqlalchemy
 aiosqlite
 requests
+httpx
+pytest-asyncio
+python-dotenv
 

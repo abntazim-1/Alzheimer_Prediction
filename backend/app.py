@@ -35,13 +35,13 @@ from routes.prediction_routes import router as prediction_router
 app.include_router(chat_router, prefix="/api")
 app.include_router(prediction_router)
 
-# Serve Frontend Static Files (Reference only, Next.js root)
-frontend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+# Serve Frontend Static Files (Disabled in development to avoid conflicts with Next.js)
+# frontend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 
-@app.get("/")
-def read_root():
-    return FileResponse(os.path.join(frontend_path, "index.html"))
+# @app.get("/")
+# def read_root():
+#     return FileResponse(os.path.join(frontend_path, "index.html"))
 
 if __name__ == "__main__":
     import uvicorn
