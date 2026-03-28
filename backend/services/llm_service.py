@@ -1,7 +1,7 @@
-import requests
+import os
 import json
 import asyncio
-import os
+from groq import Groq
 from dotenv import load_dotenv
 
 # Load environment variables from .env.local in the project root
@@ -9,8 +9,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
 load_dotenv(os.path.join(PROJECT_ROOT, ".env.local"))
 
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-OLLAMA_API_URL = f"{OLLAMA_BASE_URL}/api/chat"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY)
+
+# Use a powerful Groq model for medical reasoning
+DEFAULT_MODEL = "llama-3.3-70b-versatile"
 
 SYSTEM_PROMPT = """You are Dr. Neuro, an empathetic, highly knowledgeable AI medical assistant specializing in Alzheimer's Disease and cognitive health. 
 Your goal is to guide users through an assessment, explain medical concepts simply, and interpret prediction results. 
@@ -18,72 +21,50 @@ Do not provide definitive medical diagnoses, but rather informational insights a
 Always maintain a professional, trustworthy, and concise tone. 
 Keep your responses relatively brief unless specifically asked for a detailed explanation."""
 
-async def generate_chat_response(messages: list, model: str = "phi3") -> str:
+async def generate_chat_response(messages: list, model: str = DEFAULT_MODEL) -> str:
     """
-    Communicates with the local Ollama instance recursively.
+    Communicates with the Groq API.
     """
-    
     # Prepend the system prompt if it's not already there
     has_system = any(msg.get("role") == "system" for msg in messages)
     if not has_system:
         messages.insert(0, {"role": "system", "content": SYSTEM_PROMPT})
 
-    payload = {
-        "model": model,
-        "messages": messages,
-        "stream": False,
-        "options": {
-            "temperature": 0.5, # Slightly creative but grounded for medical
-            "num_predict": 300  # Prevent excessively long responses
-        }
-    }
-
     try:
-        # Run the synchronous requests call in a threadpool to avoid blocking FastAPI
-        response = await asyncio.to_thread(
-            requests.post,
-            OLLAMA_API_URL, 
-            json=payload, 
-            timeout=60
+        # Run the synchronous Groq call in a threadpool
+        chat_completion = await asyncio.to_thread(
+            client.chat.completions.create,
+            messages=messages,
+            model=model,
+            temperature=0.5,
+            max_tokens=1024,
         )
+        return chat_completion.choices[0].message.content
         
-        response.raise_for_status()
-        data = response.json()
-        
-        return data["message"]["content"]
-        
-    except requests.exceptions.ConnectionError:
-        raise Exception("Failed to connect to Ollama. Make sure Ollama is installed and running locally on port 11434.")
     except Exception as e:
-         raise Exception(f"Error communicating with local LLM: {str(e)}")
+         raise Exception(f"Error communicating with Groq API: {str(e)}")
 
-def generate_chat_response_stream(messages: list, model: str = "phi3"):
+def generate_chat_response_stream(messages: list, model: str = DEFAULT_MODEL):
     """
-    Synchronous generator that streams tokens from Ollama locally.
-    FastAPI handles sync generators in a streaming response perfectly.
+    Synchronous generator that streams tokens from Groq.
     """
     has_system = any(msg.get("role") == "system" for msg in messages)
     if not has_system:
         messages.insert(0, {"role": "system", "content": SYSTEM_PROMPT})
 
-    payload = {
-        "model": model,
-        "messages": messages,
-        "stream": True,  # Enable streaming explicitly here
-        "options": {
-            "temperature": 0.5,
-            "num_predict": 300
-        }
-    }
-
     try:
-        response = requests.post(OLLAMA_API_URL, json=payload, stream=True, timeout=60)
-        response.raise_for_status()
+        stream = client.chat.completions.create(
+            messages=messages,
+            model=model,
+            temperature=0.5,
+            max_tokens=1024,
+            stream=True,
+        )
         
-        for line in response.iter_lines():
-            if line:
-                data = json.loads(line)
-                yield data.get("message", {}).get("content", "")
+        for chunk in stream:
+            content = chunk.choices[0].delta.content
+            if content:
+                yield content
                 
     except Exception as e:
         yield f"\n[Backend Stream Error: {str(e)}]"

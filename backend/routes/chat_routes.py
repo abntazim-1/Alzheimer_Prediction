@@ -13,7 +13,7 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
-    model: Optional[str] = "phi3"
+    model: Optional[str] = "llama-3.3-70b-versatile"
     session_id: Optional[str] = "default_user" # Added for DB persistence
 
 @router.get("/chat/history/{session_id}")
@@ -63,4 +63,6 @@ async def chat_stream_endpoint(request: ChatRequest):
 
         return StreamingResponse(stream_and_save(), media_type="text/plain")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Groq API Error: {str(e)}")

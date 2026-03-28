@@ -241,7 +241,7 @@ export function AssistantSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
-          model: "phi3" 
+          // model: "llama-3.3-70b-versatile" // Optional, backend defaults to this
         }),
       })
 
@@ -263,7 +263,7 @@ export function AssistantSection() {
       console.error(error)
       const assistantResponse: Message = {
         role: "assistant",
-        content: "I'm having trouble connecting to my local language model brain (Ollama). Please verify it's running on port 11434.",
+        content: "I'm having trouble connecting to my AI brain (Groq). Please ensure the backend is running and the API key is valid.",
       }
       setMessages(prev => [...prev, assistantResponse])
     }
