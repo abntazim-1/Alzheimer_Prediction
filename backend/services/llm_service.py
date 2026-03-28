@@ -1,8 +1,16 @@
 import requests
 import json
 import asyncio
+import os
+from dotenv import load_dotenv
 
-OLLAMA_API_URL = "http://localhost:11434/api/chat"
+# Load environment variables from .env.local in the project root
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+load_dotenv(os.path.join(PROJECT_ROOT, ".env.local"))
+
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+OLLAMA_API_URL = f"{OLLAMA_BASE_URL}/api/chat"
 
 SYSTEM_PROMPT = """You are Dr. Neuro, an empathetic, highly knowledgeable AI medical assistant specializing in Alzheimer's Disease and cognitive health. 
 Your goal is to guide users through an assessment, explain medical concepts simply, and interpret prediction results. 

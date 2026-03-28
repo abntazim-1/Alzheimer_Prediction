@@ -2,15 +2,23 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from contextlib import asynccontextmanager
 import os
 from database import init_db
 from routes.chat_routes import router as chat_router
 
-app = FastAPI(title="NeuroCognizance AI Assessment API", version="1.0.0")
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
     await init_db()
+    yield
+    # Shutdown logic (if any)
+
+app = FastAPI(
+    title="NeuroCognizance AI Assessment API", 
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 # Allow the frontend to communicate with the backend
 app.add_middleware(
@@ -27,13 +35,13 @@ from routes.prediction_routes import router as prediction_router
 app.include_router(chat_router, prefix="/api")
 app.include_router(prediction_router)
 
-# Serve Frontend Static Files (Reference only, Next.js root)
-frontend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+# Serve Frontend Static Files (Disabled in development to avoid conflicts with Next.js)
+# frontend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 
-@app.get("/")
-def read_root():
-    return FileResponse(os.path.join(frontend_path, "index.html"))
+# @app.get("/")
+# def read_root():
+#     return FileResponse(os.path.join(frontend_path, "index.html"))
 
 if __name__ == "__main__":
     import uvicorn

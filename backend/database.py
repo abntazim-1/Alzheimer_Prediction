@@ -1,13 +1,18 @@
 import os
 from datetime import datetime
+from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.future import select
 
-# Database Path
+# Load environment variables from .env.local in the project root
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE_URL = f"sqlite+aiosqlite:///{os.path.join(BASE_DIR, 'neuro_chat.db')}"
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+load_dotenv(os.path.join(PROJECT_ROOT, ".env.local"))
+
+# Database Path
+DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite+aiosqlite:///{os.path.join(BASE_DIR, 'neuro_chat.db')}")
 
 # SQLAlchemy Setup
 engine = create_async_engine(DATABASE_URL, echo=False)
