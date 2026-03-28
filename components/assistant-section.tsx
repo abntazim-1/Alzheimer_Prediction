@@ -245,9 +245,13 @@ export function AssistantSection() {
         }),
       })
 
-      if (!response.ok) throw new Error("Chat failed")
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Chat failed with status ${response.status}`);
+      }
+      
       const data = await response.json()
-
+      
       const assistantResponse: Message = {
         role: "assistant",
         content: data.response,
@@ -259,11 +263,11 @@ export function AssistantSection() {
       }
 
       setMessages(prev => [...prev, assistantResponse])
-    } catch (error) {
-      console.error(error)
+    } catch (error: any) {
+      console.error("Chat Error:", error)
       const assistantResponse: Message = {
         role: "assistant",
-        content: "I'm having trouble connecting to my AI brain (Groq). Please ensure the backend is running and the API key is valid.",
+        content: `I'm having trouble connecting to my AI brain (Groq). Error: ${error.message || "Unknown Error"}. Please ensure the backend is running and the API key is valid.`,
       }
       setMessages(prev => [...prev, assistantResponse])
     }
