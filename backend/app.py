@@ -45,4 +45,6 @@ app.include_router(prediction_router)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    # Use the PORT environment variable if available (e.g., on Render/Railway)
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port)
