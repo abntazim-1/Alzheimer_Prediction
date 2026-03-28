@@ -54,9 +54,22 @@ git push origin main
 ```
 **CI/CD Action:** After tests pass, Vercel and Render will automatically pull the new code and update your live site.
 
-## 3. Failure & Rollback
-- **Safety First**: If a push to `main` fails the CI/CD tests, the deployment process will **stop**. Your existing live version will continue to run without interruption.
-- **Manual Rollback**: If you ever need to go back, go to the Vercel/Render dashboard and select "Redeploy" on a previous successful build.
+---
+## 4. Troubleshooting Production Issues (502 Bad Gateway)
+
+If you see a **502 Bad Gateway** or a connectivity error in production:
+
+1. **Check Backend Status**: Visit `https://your-backend-app.run.app/api/health` in your browser.
+   - If it returns `{"status": "healthy"}`, the backend is UP and the problem is in the Frontend `BACKEND_URL` config.
+   - If it returns 502 or Connection Refused, the backend service has crashed or failed to start.
+
+2. **Verify Environment Variables**:
+   - **`BACKEND_URL`** (Frontend): must be the FULL URL of your backend, e.g., `https://alzheimer-backend.a.run.app`. (Do NOT include a trailing slash).
+   - **`DATABASE_URL`** (Backend): On Linux, ensure this does NOT point to a `C:/` drive. Use `sqlite+aiosqlite:///./neuro_chat.db` for a local file.
+   - **`GROQ_API_KEY`**: Must be set for chat functionality.
+
+3. **Check Logs**:
+   - On Google Cloud, go to **Logs Explorer** to see the Python traceback if the backend is crashing. Common issues include missing dependencies or permission errors on the database file.
 
 ---
 *Created by Antigravity for Abdullah Bin Noor*

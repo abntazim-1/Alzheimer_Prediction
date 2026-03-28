@@ -39,9 +39,9 @@ app.include_router(prediction_router)
 # frontend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 
-# @app.get("/")
-# def read_root():
-#     return FileResponse(os.path.join(frontend_path, "index.html"))
+@app.get("/api/health")
+def health_check():
+    return {"status": "healthy", "service": "NeuroCognizance AI API"}
 
 if __name__ == "__main__":
     import uvicorn
