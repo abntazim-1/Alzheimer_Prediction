@@ -12,7 +12,18 @@ PROJECT_ROOT = os.path.dirname(BASE_DIR)
 load_dotenv(os.path.join(PROJECT_ROOT, ".env.local"))
 
 # Database Path
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite+aiosqlite:///{os.path.join(BASE_DIR, 'neuro_chat.db')}")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    # Default to a local SQLite file in the backend directory
+    db_path = os.path.join(BASE_DIR, 'neuro_chat.db')
+    DATABASE_URL = f"sqlite+aiosqlite:///{db_path}"
+elif DATABASE_URL.startswith("sqlite") and ":/" in DATABASE_URL and os.name != 'nt':
+    # Catch Windows-style paths (e.g., C:/) when running on Linux
+    print(f"WARNING: Detected Windows-style path in DATABASE_URL on non-Windows system: {DATABASE_URL}")
+    print("Falling back to local neuro_chat.db in backend directory.")
+    db_path = os.path.join(BASE_DIR, 'neuro_chat.db')
+    DATABASE_URL = f"sqlite+aiosqlite:///{db_path}"
 
 # SQLAlchemy Setup
 engine = create_async_engine(DATABASE_URL, echo=False)
