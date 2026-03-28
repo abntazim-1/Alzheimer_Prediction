@@ -12,15 +12,17 @@ This guide explains how to set up and manage your complete Development → Stagi
    - `NEXT_PUBLIC_API_URL`: `https://your-backend-app.onrender.com/api`
 5. Click **"Deploy"**.
 
-### Backend (Render)
-1. Go to [Render](https://render.com) and click **"New"** → **"Web Service"**.
+### Backend (Render / Railway)
+1. Go to your hosting provider and create a **"New Web Service"**.
 2. Connect your GitHub repository.
 3. Set the following:
    - **Language**: `Python`
    - **Build Command**: `pip install -r backend/requirements.txt`
-   - **Start Command**: `python backend/app.py` (Wait: Ensure you use a production server like `gunicorn` or `uvicorn` in the start command if necessary, e.g., `cd backend && uvicorn app:app --host 0.0.0.0 --port $PORT`)
+   - **Start Command**: `python backend/app.py`
 4. Add **Environment Variables**:
-   - `DATABASE_URL`: `sqlite:///./neuro_chat.db` (For persistence, use Render's "Disks" or a PostgreSQL service).
+   - `GROQ_API_KEY`: *(Your Groq API Key)*
+   - `DATABASE_URL`: `sqlite:///./neuro_chat.db` (For persistence, use a persistent Disk mounting or PostgreSQL).
+   - `PORT`: `8080` (Automatically set by Render, but default is 8080).
 5. Click **"Create Web Service"**.
 
 ## 2. Development Workflow
