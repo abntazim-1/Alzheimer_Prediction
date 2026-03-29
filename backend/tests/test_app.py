@@ -1,11 +1,12 @@
+import os
+import sys
+
+# Set PYTHONPATH to include backend for the test to find app
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import pytest
 from httpx import AsyncClient, ASGITransport
 from app import app
-import os
-
-# Set PYTHONPATH to include backend for the test to find app
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 @pytest.mark.asyncio
 async def test_read_main():
