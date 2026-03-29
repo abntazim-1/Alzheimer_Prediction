@@ -4,6 +4,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env.local in the project root
+# BASE_DIR is backend/, so PROJECT_ROOT is e:/Capstone/
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+load_dotenv(os.path.join(PROJECT_ROOT, ".env.local"))
+
 from database import init_db
 from routes.chat_routes import router as chat_router
 

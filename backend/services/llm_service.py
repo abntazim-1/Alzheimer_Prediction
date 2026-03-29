@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env.local in the project root
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(BASE_DIR)
+BACKEND_DIR = os.path.dirname(BASE_DIR)
+PROJECT_ROOT = os.path.dirname(BACKEND_DIR)
 load_dotenv(os.path.join(PROJECT_ROOT, ".env.local"))
 
 # Use a powerful Groq model for medical reasoning
