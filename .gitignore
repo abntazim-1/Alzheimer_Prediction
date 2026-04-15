@@ -18,10 +18,17 @@ backend/services/__pycache__/
 *.pt
 *.joblib
 *.db
-models/*.pth
-models/*.pt
-models/*.joblib
 models/*.csv
+
+# Allow production models
+!models/alz_qcnn_full_model.pt
+!models/alz_qcnn_weights.pth
+!models/model.joblib
+!models/scaler.joblib
+!models/cat_encoders.joblib
+!models/qfe_meta.joblib
+!models/qfe_cache.joblib
+!models/training_checkpoint.pth
 
 # Build and Dist
 dist/
