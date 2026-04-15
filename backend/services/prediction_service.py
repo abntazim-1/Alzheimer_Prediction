@@ -20,6 +20,11 @@ import matplotlib.pyplot as plt
 from lime import lime_image
 from skimage.segmentation import mark_boundaries, felzenszwalb
 from skimage import filters
+import gc
+
+# Ensure matplotlib uses a non-interactive backend for production stability
+import matplotlib
+matplotlib.use('Agg')
 
 from .hybrid_classifier import HybridQuantumClassifier
 
@@ -107,7 +112,7 @@ class PredictionService:
 
         self.explainer = lime_image.LimeImageExplainer()
         
-        self.load_models()
+        # Models will be lazy-loaded on first request to save startup memory
 
     def load_models(self):
         """Loads both MRI and Tabular models into memory."""
@@ -197,12 +202,15 @@ class PredictionService:
         plt.savefig(save_path, bbox_inches='tight', pad_inches=0, dpi=150)
         plt.close(fig)
         
+        gc.collect() # Force cleanup of LIME artifacts
         return f"/static/explanations/{filename}"
 
     def predict_mri(self, image_bytes: bytes) -> Dict[str, Any]:
         """Predicts Alzheimer's stage from MRI image."""
         if self.mri_model is None:
-            return {"error": "MRI model not available."}
+            self.load_models()
+            if self.mri_model is None:
+                return {"error": "MRI model could not be loaded."}
         
         try:
             image = Image.open(io.BytesIO(image_bytes)).convert('L')
@@ -220,19 +228,24 @@ class PredictionService:
             confidence = conf.item()
             explanation_url = self.generate_explanation(img_array, pred_idx.item())
             
-            return {
+            result = {
                 "prediction": prediction,
                 "confidence": confidence,
                 "probabilities": {self.mri_classes[i]: probs[0][i].item() for i in range(len(self.mri_classes))},
                 "explanation_url": explanation_url
             }
+            return result
         except Exception as e:
             return {"error": str(e)}
+        finally:
+            gc.collect()
 
     def predict_tabular(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Predicts Alzheimer's from clinical tabular data with SHAP explainability."""
         if self.tabular_pipeline is None:
-            return {"error": "Tabular model not available."}
+            self.load_models()
+            if self.tabular_pipeline is None:
+                return {"error": "Tabular model could not be loaded."}
         
         try:
             # Ensure all required features are present in the data dict
@@ -288,6 +301,8 @@ class PredictionService:
             import traceback
             traceback.print_exc()
             return {"error": str(e)}
+        finally:
+            gc.collect()
 
 # Instantiate service singleton
 prediction_service = PredictionService()

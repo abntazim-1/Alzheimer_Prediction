@@ -153,6 +153,10 @@ const clinicalFields = [
   { id: "MemoryComplaints", label: "Mem. Complaints (0/1)", type: "number", placeholder: "1", category: "Clinical" },
 ]
 
+const getBackendUrl = () => {
+  return process.env.NEXT_PUBLIC_BACKEND_URL || ""
+}
+
 export function AssistantSection() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -217,7 +221,7 @@ export function AssistantSection() {
         const formData = new FormData()
         formData.append("file", uploadedFile)
 
-        const response = await fetch("/api/predict/mri", {
+        const response = await fetch(`${getBackendUrl()}/api/predict/mri`, {
           method: "POST",
           body: formData,
         })
@@ -226,7 +230,7 @@ export function AssistantSection() {
         const result = await response.json()
 
         // Get Dr. Neuro's interpretation
-        const interpretResponse = await fetch("/api/chat/interpret", {
+        const interpretResponse = await fetch(`${getBackendUrl()}/api/chat/interpret`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -304,7 +308,7 @@ export function AssistantSection() {
         setMessages(prev => [...prev, processingMessage])
         setIsAnalyzing(true)
 
-        const response = await fetch("/api/predict/tabular", {
+        const response = await fetch(`${getBackendUrl()}/api/predict/tabular`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -318,7 +322,7 @@ export function AssistantSection() {
         }
 
         // Get Dr. Neuro's interpretation
-        const interpretResponse = await fetch("/api/chat/interpret", {
+        const interpretResponse = await fetch(`${getBackendUrl()}/api/chat/interpret`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -410,7 +414,7 @@ export function AssistantSection() {
     setInputValue("")
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch(`${getBackendUrl()}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -681,7 +685,7 @@ export function AssistantSection() {
             </div>
             <div className="relative aspect-square sm:aspect-video bg-muted flex items-center justify-center overflow-hidden">
               <img 
-                src={result.showExplanation ? result.explanationUrl : result.explanationUrl.replace("explanation_", "raw_").replace(".png", ".jpg")} 
+                src={result.showExplanation ? `${getBackendUrl()}${result.explanationUrl}` : `${getBackendUrl()}${result.explanationUrl.replace("explanation_", "raw_").replace(".png", ".jpg")}`} 
                 alt="Brain Scan Analysis"
                 className="w-full h-full object-contain"
                 onError={(e) => {
