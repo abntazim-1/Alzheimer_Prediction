@@ -193,20 +193,36 @@ export function PredictionSection() {
                   {mriResult.error}
                 </div>
               ) : (
-                <div className="aspect-video rounded-xl bg-secondary/30 border border-border flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                      <Activity className="w-8 h-8 text-primary/50" />
+                <div className="aspect-video rounded-xl bg-secondary/30 border border-border flex items-center justify-center overflow-hidden">
+                  {mriResult?.explanation_url ? (
+                    <div className="relative w-full h-full group">
+                      <img 
+                        src={mriResult.explanation_url} 
+                        alt="MRI Explanation" 
+                        className="w-full h-full object-contain"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 bg-background/80 backdrop-blur-sm p-4 translate-y-full group-hover:translate-y-0 transition-transform border-t border-border">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-primary">MRI Stage Confidence:</span>
+                          <span className="font-bold text-primary">{(mriResult.confidence * 100).toFixed(1)}%</span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {mriResult ? "MRI Stage Confidence" : "Explainable AI Visualization"}
-                    </p>
-                    {mriResult && (
-                      <p className="text-2xl font-bold text-primary mt-2">
-                        {(mriResult.confidence * 100).toFixed(1)}%
+                  ) : (
+                    <div className="text-center p-6">
+                      <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                        <Activity className="w-8 h-8 text-primary/50" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {mriResult ? "MRI Stage Confidence" : "Explainable AI Visualization"}
                       </p>
-                    )}
-                  </div>
+                      {mriResult && (
+                        <p className="text-2xl font-bold text-primary mt-2">
+                          {(mriResult.confidence * 100).toFixed(1)}%
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

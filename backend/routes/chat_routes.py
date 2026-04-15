@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Dict, Optional
-from services.llm_service import generate_chat_response, generate_chat_response_stream
+from services.llm_service import generate_chat_response, generate_chat_response_stream, generate_medical_interpretation
 from database import save_chat_message, get_chat_history
 
 router = APIRouter()
@@ -15,6 +15,24 @@ class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     model: Optional[str] = "llama-3.3-70b-versatile"
     session_id: Optional[str] = "default_user" # Added for DB persistence
+
+class InterpretationRequest(BaseModel):
+    prediction_data: dict
+    model: Optional[str] = "llama-3.3-70b-versatile"
+
+@router.post("/chat/interpret")
+async def interpret_endpoint(request: InterpretationRequest):
+    """Generates a structured medical interpretation of prediction results."""
+    try:
+        response_text = await generate_medical_interpretation(
+            prediction_data=request.prediction_data,
+            model=request.model
+        )
+        return {"response": response_text}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/chat/history/{session_id}")
 async def fetch_chat_history(session_id: str):

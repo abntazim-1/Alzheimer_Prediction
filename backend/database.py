@@ -13,7 +13,7 @@ load_dotenv(os.path.join(PROJECT_ROOT, ".env.local"))
 
 # Database Path
 DATABASE_URL = os.getenv("DATABASE_URL")
-
+    
 if not DATABASE_URL:
     # Default to a local SQLite file in the backend directory
     db_path = os.path.join(BASE_DIR, 'neuro_chat.db')

@@ -63,6 +63,7 @@ seaborn
 # Explainability
 # =========================
 shap
+xgboost
 lime
 captum
 
