@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Send, Bot, User, Upload, FileImage, ClipboardList, X, CheckCircle2, AlertCircle, ChevronRight } from "lucide-react"
+import { Send, Bot, User, Upload, FileImage, ClipboardList, X, CheckCircle2, AlertCircle, ChevronRight, Activity } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,6 +23,7 @@ interface Message {
 }
 
 interface MedicalInsightData {
+  type?: "mri" | "tabular"
   prediction_result: {
     label: string
     confidence: string
@@ -42,22 +43,25 @@ const isJson = (str: string) => {
     return false
   }
 }
-
 function MedicalInsight({ data }: { data: MedicalInsightData }) {
+  const isTabular = data.type === "tabular"
+
   return (
     <div className="space-y-6 pt-2">
       {/* Prediction Result & Legend */}
       <div className="bg-primary/5 rounded-2xl p-5 border border-primary/10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-3 flex gap-4">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Focus: Atrophy</span>
+        {!isTabular && (
+          <div className="absolute top-0 right-0 p-3 flex gap-4">
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Focus: Atrophy</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Focus: Healthy</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Focus: Healthy</span>
-          </div>
-        </div>
+        )}
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70">Prediction Result</span>
           <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-bold">
@@ -71,15 +75,19 @@ function MedicalInsight({ data }: { data: MedicalInsightData }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2 mb-1">
-            <FileImage className="w-4 h-4 text-primary/70" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Visual Explanation</span>
+            {isTabular ? <Activity className="w-4 h-4 text-primary/70" /> : <FileImage className="w-4 h-4 text-primary/70" />}
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              {isTabular ? "Feature Impact Analysis" : "Visual Explanation"}
+            </span>
           </div>
           <p className="text-sm leading-relaxed text-foreground/90">{data.visual_explanation}</p>
         </div>
         <div className="space-y-2">
           <div className="flex items-center gap-2 mb-1">
             <ClipboardList className="w-4 h-4 text-primary/70" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Medical Context</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              {isTabular ? "Clinical Implications" : "Medical Context"}
+            </span>
           </div>
           <p className="text-sm leading-relaxed text-foreground/90">{data.clinical_interpretation}</p>
         </div>

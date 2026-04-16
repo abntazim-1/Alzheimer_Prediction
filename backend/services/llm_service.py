@@ -28,11 +28,11 @@ STRICT OUTPUT RULES (VERY IMPORTANT)
 NEVER give a definitive diagnosis. ALWAYS include a disclaimer if providing health advice.
 Your primary role in this mode is conversation and education."""
 
-INTERPRETATION_PROMPT = """You are an advanced AI Medical Analysis Assistant specialized in Alzheimer's Disease and Neuroimaging.
+INTERPRETATION_PROMPT = """You are an advanced AI Medical Analysis Assistant specialized in Alzheimer's Disease, Neuroimaging, and Clinical Diagnostics.
 
 Your job is to provide:
 1. Prediction Result
-2. Visual Explanation (Anatomical Reasoning)
+2. Result Explanation (Anatomical for MRI, Feature Impact for Tabular)
 3. Clinical Interpretation (Medical Context)
 4. Severity & Rational Insight
 5. Actionable Recommendations
@@ -50,7 +50,7 @@ STRICT OUTPUT RULES (VERY IMPORTANT)
 OUTPUT ORDER (MANDATORY)
 ----------------------------------------
 1. Prediction Result (FIRST)
-2. Visual Explanation Summary (SECOND)
+2. Result Explanation Summary (SECOND)
 3. Clinical Interpretation (THIRD)
 4. Key Factors / Reasoning (FOURTH)
 5. Recommendations (FIFTH)
@@ -61,16 +61,15 @@ OUTPUT FORMAT
 ----------------------------------------
 Return response in this structured JSON format:
 {
+  "type": "<mri or tabular>",
   "prediction_result": {
     "label": "<Predicted Class>",
     "confidence": "<confidence %>"
   },
-  "visual_explanation": "<Explain which brain regions are focused on (e.g. hippocampus, temporal lobe) and what the color highlights indicate (Red=Risk, Green=Healthy)>",
-  "clinical_interpretation": "<Explain what this means in real-world medical context, mentioning structural changes like atrophy or shrinkage if applicable>",
+  "visual_explanation": "<MRI: Explain focused brain regions and colors Red=Risk, Green=Healthy. Tabular: Explain how clinical biomarkers like MMSE or Age influenced the prediction.>",
+  "clinical_interpretation": "<What this means in real-world clinical context. For Tabular, focus on lifestyle/clinical indicators.>",
   "key_factors": [
-    "<Reasoning Factor 1: e.g. Detected hippocampal shrinkage>",
-    "<Reasoning Factor 2: e.g. Reduced signal intensity in temporal cortex>",
-    "<Reasoning Factor 3: e.g. Comparison with typical neurodegeneration patterns>"
+    "<For MRI: Anatomical findings. For Tabular: Top clinical risk/protective factors>"
   ],
   "recommendations": [
     "<Action 1>",
@@ -81,12 +80,17 @@ Return response in this structured JSON format:
 }
 
 ----------------------------------------
-IMAGE-SPECIFIC (MRI) REASONING
+DATA SPECIFIC REASONING
 ----------------------------------------
-- When interpreting MRI:
-    - If Prediction is Demented: Focus on atrophy, enlarged ventricles, and shrinkage in the temporal/hippocampal regions.
-    - If Prediction is Non-Demented: Focus on preserved brain volume and healthy signal intensity.
-- HEATMAP COLORS: Always explain that Red/Warm regions indicate areas of concern (risk) while Green/Cool regions indicate healthy tissue.
+1. FOR MRI (Neuroimaging):
+   - Red/Warm regions indicate high-risk atrophy/concerns.
+   - Green/Cool regions indicate healthy tissue.
+   - Focus on: Hippocampus shrinkage, enlarged ventricles, temporal cortex atrophy.
+
+2. FOR TABULAR (Clinical Markers):
+   - Focus on SHAP feature importance provided in the request.
+   - Explain how factors like MMSE (Mini-Mental State Exam), Age, or Family History contribute.
+   - DO NOT mention brain regions or heatmaps if only tabular data is provided.
 """
 
 # Internal client instance for singleton/lazy pattern
@@ -157,23 +161,23 @@ async def generate_medical_interpretation(prediction_data: dict, model: str = DE
     prediction_type = prediction_data.get("type", "unknown") # 'mri' or 'tabular'
     
     if prediction_type == "mri":
-        prompt = f"""Please interpret the following MRI analysis result:
+        prompt = f"""Please interpret the following MRI analysis result (Type: MRI):
 - Prediction: {prediction_data.get('prediction')}
 - Confidence: {prediction_data.get('confidence'):.1f}%
 - Visual Explanation: A LIME heatmap has been generated.
 
-As Dr. Neuro, provide a structured JSON report following your mandatory format."""
+As Dr. Neuro, provide a structured JSON report following your mandatory format. Ensure 'type' is set to 'mri'."""
     else:
         # Tabular
         shap_values = prediction_data.get("shap_values", [])
         features_str = ", ".join([f"{f['name']} ({'Risk' if f['value'] > 0 else 'Protective'}: {f['value']:.4f})" for f in shap_values])
         
-        prompt = f"""Please interpret the following clinical data analysis result:
+        prompt = f"""Please interpret the following clinical data analysis result (Type: Tabular Clinical Data):
 - Prediction: {prediction_data.get('prediction')}
 - Confidence: {prediction_data.get('confidence'):.1f}%
 - Key Contributing Factors (SHAP): {features_str}
 
-As Dr. Neuro, provide a structured JSON report following your mandatory format."""
+As Dr. Neuro, provide a structured JSON report following your mandatory format. Ensure 'type' is set to 'tabular' and do NOT mention brain anatomy/MRI scans."""
 
     messages = [
         {"role": "system", "content": INTERPRETATION_PROMPT},
